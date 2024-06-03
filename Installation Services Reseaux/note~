@@ -1,0 +1,151 @@
+S2.03-lance-machine-virtuelle
+
+root
+root
+
+barnouic
+etu
+
+MAC : 52:54:00:12:34:56
+IPv4 : 10.0.2.15/24
+IPv6 : fe0::5054:ff:fe12:3456/6
+
+ssh utilisateur@sadresse_ip
+
+su -
+logout
+
+systemctl status ssh
+systemctl status apache2
+systemctl status postgresql
+
+
+apt-get update
+apt-get upgrade
+apt-get install micro
+apt-get clean
+
+apt-get install apache2
+
+http://localhost:8080
+
+apt-get install postgresql
+su - postgres
+apt remove --purge postgresql postgresql-contrib
+
+apt-get install php
+
+http://localhost:8080/info.php
+
+apt-get install phppgadmin
+
+find / -name "Connection.php"
+nano /usr/shar/phppgadmin/classes/database/Connection.php
+
+http://localhost:8080/phppgadmin
+
+nano /etc/apache2/conf-available/phppgadmin.conf
+Require all 
+
+pg_lsclusters
+ps -ef
+
+psql -l 
+psql -d <nom_de_la_base>
+
+psql -h localhost postgres 
+
+Ctrl-w : rechercher
+Ctrl-o : sauvegarder
+Ctrl-x : sortir
+Alt-6 : copier la ligne courante dans le buffer
+Ctrl-u : coller le buffer
+
+nano /etc/postgresql/15/main/postgresql.conf
+listen_addresses = '*'
+
+nano /etc/postgresql/15/main/pg_hba.conf
+#IPv4 remote connections:
+host  all all 0.0.0.0/0 scram-sha-256
+
+systemctl restart postgresql 
+systemctl start postgresql
+
+& createuser barnouic 
+CREATE USER barnouic WITH CREATEROLE PASSWORD 'etu';
+ALTER USER barnouic WITH CREATEROLE PASSWORD 'etu';
+DROP USER barnouic;
+GRANT INSERT, UPDATE, SELECT ON TABLE identifiant_etu TO barnouic;
+
+$ createdb universite -O barnouic
+
+CREATE TABLE identifiant_etu (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(50),
+    age INT
+);
+
+INSERT INTO identifiant_etu (nom, age) VALUES ('Clement', 19), ('Loucas', 18);
+
+SELECT * FROM pg_shadow;
+
+tail /var/log/postgres/postgres
+
+
+Capture d'une interrogation de la base PostgreSQL avec PhpPgAdmin.
+
+Après avoir executé, sur la machine virtuelle
+/sbin/blkid 
+Capture de la fenêtre du navigateur hôte interrogeant le fichier PHP suivant:
+/users/info/www/intranet/enseignements/S2.03/page_sae_S2.03.php
+installé sur le serveur Apache de votre machine virtuelle.
+
+Capture montrant l'espace de stockage utilisé et celui qui reste dans votre machine virtuelle.
+
+Une analyse de la sécurité de votre installation, avec par exemple:
+    Comment corriger les failles de sécurité logicielles qui pourront apparaître dans Debian, Apache, PHP ou PostgreSQL ?
+    
+    
+ip addr
+    
+ssh -i ~/.ssh/authorized_keys barnouic@192.168.141.142
+
+    
+ssh-keygen
+/users/info/etu-1a/barnouic/id-rsa
+rootssh
+SHA256:PXYjz6ndmPr6GrUQ8006iozFyuqiqOTmB+404BSU4V0 barnouic@pc-dg-033-02
+
+SHA256:T4Qhtd/wVKCp+30wjzqqpLVROguVYViXAjGumNLcGww root@barnouic
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCzXBYbSgqnyGunMqMDlFNLIkuLR8IkMRuDAq//bXeqm9PA14mf6pKBBuFZuCJLlDcmKXWWRMS8d39>
+
+ls -la
+cat /home/barnouic/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+ssh-add <chemin_d'accès_clé_privée>
+mot de passe classique
+ssh root@localhost -p 2222
+
+nano ~/.ssh/authorized_keys
+nano /etc/ssh/sshd_config [`PasswordAuthentication` est réglée sur `no`]
+nano /etc/ssh/sshd_config [`PermitRootLogin yes`]
+
+
+3. **Mise en place d'un accès au serveur Apache par HTTPS (HTTP/TLS 1.3) avec un certificat autosigné** :
+   - Générez un certificat autosigné à l'aide d'OpenSSL :
+     ```bash
+     sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+     ```
+   - Répondez aux questions interactives pour créer votre certificat.
+   - Ensuite, configurez Apache pour utiliser le certificat autosigné dans le fichier de configuration SSL (`/etc/apache2/sites-available/default-ssl.conf`). Assurez-vous que les directives `SSLCertificateFile` et `SSLCertificateKeyFile` pointent vers les chemins corrects des fichiers de certificat et de clé privée.
+   - Activez le module SSL et redémarrez Apache :
+     ```bash
+     sudo a2enmod ssl
+     sudo systemctl restart apache2
+     ```
+   - Assurez-vous que le port 443 (HTTPS) est ouvert dans votre pare-feu.
+   
+Après avoir effectué ces modifications, vous devriez pouvoir vous connecter au serveur via SSH en utilisant vos clés privées, accéder au compte root si nécessaire, et naviguer vers votre serveur Apache via HTTPS avec un certificat autosigné. Ces étapes amélioreront la sécurité et la confidentialité de votre environnement de développement.
+
+
